@@ -95,7 +95,20 @@ app.get("/articles/:id", function(req, res){
     });
 });
 
-
+//Route for saving or updating an article's associated note
+app.post("/articles/:id", function(req, res) {
+    //Create a new note then pass it to the req.body
+    db.Note.create(req.body)
+    .then(function(dbNote){
+        return db.Article.findOneAndUpdate({ _id: req.params.id }, {note: dbNote._id }, {new: true});
+    })
+    .then(function(dbArticle) {
+        res.json(dbArticle);
+    })
+    .catch(function(err){
+        res.json(err);
+    });
+});
 
 // Starting the server
 app.listen(PORT, function() {
