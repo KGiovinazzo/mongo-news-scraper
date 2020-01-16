@@ -63,6 +63,41 @@ app.get("/scrape", function (req, res) {
             });
         });
 
-    })
-})
+        //Sends a message to the client
+        res.send("Scrape Successful!");
+    });
+});
 
+//Route for obtaining all articles from the database
+app.get("/articles", function(req, res){
+    db.Article.find({})
+    .then(function(dbArticle) {
+        //Send articles back to client if successfully found
+        res.json(dbArticle);
+    })
+    .catch(function(err) {
+        //Send error to client if one occurs
+        res.json(err);
+    });
+});
+
+//Grabbing an article by its id, then populating with its note
+app.get("/articles/:id", function(req, res){
+    //Prep query to find a matching id
+    db.Article.findOne({_id: req.params.id})
+    //then populate with all associated notes
+    .populate("note")
+    .then(function(dbArticle) {
+        res.json(dbArticle);
+    })
+    .catch(function(err){
+        res.json(err);
+    });
+});
+
+
+
+// Starting the server
+app.listen(PORT, function() {
+    console.log("App running on port " + PORT + "!");
+  });
