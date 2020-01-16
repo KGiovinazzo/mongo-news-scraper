@@ -9,9 +9,9 @@ var axios = require("axios");
 var cheerio = require("cheerio");
 
 //Requiring all models
-var db = require("models");
+var db = require("./models");
 
-var PORT = 3000;
+var PORT = process.env.PORT || 3000;
 
 //Initializing Express
 var app = express();
@@ -27,6 +27,10 @@ app.use(express.static("public"));
 
 //Connect to MongoDB
 mongoose.connect("mongodb://localhost/", { mongoNews: true });
+
+var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoNews";
+
+mongoose.connect(MONGODB_URI);
 
 //Routes
 
