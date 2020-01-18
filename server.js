@@ -1,5 +1,4 @@
-// var bodyParser = require("body-parser");
-
+var bodyParser = require("body-parser");
 var express = require("express");
 var logger = require("morgan");
 var mongoose = require("mongoose");
@@ -26,7 +25,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 //Connect to MongoDB
-mongoose.connect("mongodb://localhost/", { mongoNews: true });
+mongoose.connect("mongodb://localhost/mongoNews", { useNewUrlParser: true });
 
 var MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/mongoNews";
 
@@ -37,14 +36,15 @@ mongoose.connect(MONGODB_URI);
 //GET route
 app.get("/scrape", function (req, res) {
     //Use axios to grab HTML body
-    axios.get("https://www.echojs.com/").then(function (response) {
+    axios.get("https://pathwayscg.com/social-blog/").then(function (response) {
+        
         var $ = cheerio.load(response.data);
-
+        
         //Grab all h2's in article
+        //Save empty result object
+        
+        $("h3").each(function (i, element) {
 
-        $("article h2").each(function (i, element) {
-
-            //Save empty result object
             var result = {};
 
             //Add text and href of every link then save as properties of result
@@ -52,15 +52,17 @@ app.get("/scrape", function (req, res) {
             result.title = $(this)
             .children("a")
             .text();
+            console.log(result.title)
             result.link = $(this)
             .children("a")
             .attr("href");
-
+           
             //Create a new article using the 'result' object from scraping
 
             db.Article.create(result)
             .then(function(dbArticle) {
                 console.log(dbArticle);
+                res.status(200).send("Scrape Successful!");
             })
             .catch(function(err) {
                 console.log(err);
@@ -68,7 +70,7 @@ app.get("/scrape", function (req, res) {
         });
 
         //Sends a message to the client
-        res.send("Scrape Successful!");
+        
     });
 });
 
